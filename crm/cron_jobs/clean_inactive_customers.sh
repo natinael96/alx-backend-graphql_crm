@@ -5,7 +5,7 @@
 
 # Get the directory where the script is located
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# Navigate to the project root (assuming manage.py is in the parent of crm directory)
+# Navigate to the project root (where manage.py should be located)
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 # Change to project root directory
