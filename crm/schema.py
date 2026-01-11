@@ -3,7 +3,7 @@ GraphQL schema for CRM application.
 """
 import graphene
 from graphene_django import DjangoObjectType
-from crm.models import Product
+from crm.models import Product, Customer, Order
 
 
 class ProductType(DjangoObjectType):
@@ -41,14 +41,55 @@ class UpdateLowStockProducts(graphene.Mutation):
         )
 
 
+class CustomerType(DjangoObjectType):
+    """GraphQL type for Customer model."""
+    class Meta:
+        model = Customer
+        fields = ('id', 'name', 'email', 'created_at')
+
+
+class OrderType(DjangoObjectType):
+    """GraphQL type for Order model."""
+    class Meta:
+        model = Order
+        fields = ('id', 'customer', 'total_amount', 'created_at')
+
+
 class Query(graphene.ObjectType):
     """GraphQL queries."""
     hello = graphene.String(default_value="Hello, GraphQL!")
     products = graphene.List(ProductType)
+    customers = graphene.List(CustomerType)
+    orders = graphene.List(OrderType)
+    total_customers = graphene.Int()
+    total_orders = graphene.Int()
+    total_revenue = graphene.Decimal()
     
     def resolve_products(self, info):
         """Resolve all products."""
         return Product.objects.all()
+    
+    def resolve_customers(self, info):
+        """Resolve all customers."""
+        return Customer.objects.all()
+    
+    def resolve_orders(self, info):
+        """Resolve all orders."""
+        return Order.objects.all()
+    
+    def resolve_total_customers(self, info):
+        """Resolve total number of customers."""
+        return Customer.objects.count()
+    
+    def resolve_total_orders(self, info):
+        """Resolve total number of orders."""
+        return Order.objects.count()
+    
+    def resolve_total_revenue(self, info):
+        """Resolve total revenue (sum of total_amount from orders)."""
+        from django.db.models import Sum
+        result = Order.objects.aggregate(total=Sum('total_amount'))
+        return result['total'] or 0
 
 
 class Mutation(graphene.ObjectType):
