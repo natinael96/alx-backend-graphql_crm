@@ -4,6 +4,8 @@ Cron jobs for CRM application.
 
 from datetime import datetime
 import requests
+from gql import gql, Client
+from gql.transport.requests import RequestsHTTPTransport
 
 
 def log_crm_heartbeat():
@@ -18,9 +20,17 @@ def log_crm_heartbeat():
     # Optionally query GraphQL hello field to verify endpoint is responsive
     try:
         graphql_endpoint = "http://localhost:8000/graphql"
-        query = {"query": "{ hello }"}
-        response = requests.post(graphql_endpoint, json=query, timeout=5)
-        if response.status_code == 200:
+        transport = RequestsHTTPTransport(url=graphql_endpoint)
+        client = Client(transport=transport, fetch_schema_from_transport=True)
+        
+        query = gql("""
+            query {
+                hello
+            }
+        """)
+        
+        result = client.execute(query)
+        if result.get('hello'):
             message = f"{timestamp} CRM is alive (GraphQL endpoint responsive)\n"
     except Exception:
         # If GraphQL query fails, still log the heartbeat
