@@ -2,7 +2,7 @@
 Admin configuration for CRM models.
 """
 from django.contrib import admin
-from .models import Customer, Order
+from .models import Customer, Order, Product
 
 
 @admin.register(Customer)
@@ -19,4 +19,12 @@ class OrderAdmin(admin.ModelAdmin):
     list_display = ['id', 'customer', 'total_amount', 'created_at']
     list_filter = ['created_at']
     search_fields = ['customer__name', 'customer__email']
+
+
+@admin.register(Product)
+class ProductAdmin(admin.ModelAdmin):
+    """Admin interface for Product model."""
+    list_display = ['name', 'stock', 'price', 'created_at']
+    list_filter = ['created_at']
+    search_fields = ['name']
 
